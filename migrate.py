@@ -3,31 +3,9 @@ from pony import orm
 from pony.orm import select, count
 from pathlib import Path 
 import frontmatter as fm
+from api.models import Song, Author, Artist
 
 __DEBUG = False
-
-db = orm.Database()
-db.bind(provider='sqlite', filename=':memory:' if __DEBUG else 'db.sqlite', create_db=True)
-
-
-class Artist(db.Entity):
-    name = orm.Required(str, unique=True)
-    songs = orm.Set('Song')
-
-
-class Author(db.Entity):
-    name = orm.Required(str)
-    url = orm.Optional(str)
-    songs = orm.Set('Song', reverse='tab_author')
-    
-
-class Song(db.Entity):
-    artist = orm.Required('Artist')
-    chords = orm.Required(str)
-    title = orm.Required(str)
-    tab_author = orm.Optional(Author)
-    original_url = orm.Required(str)
-    capo_fret = orm.Optional(int)
 
 
 def build_model(song_file: Dict[str,str]) -> Song:
@@ -59,12 +37,11 @@ def load_songs():
     current_dir = Path(__file__).parent
     chords_dir = current_dir / "chords"
     res = chords_dir.glob("**/*.md")
-    # models = []
-    for i in res:
-        with open(i, "r") as f:
+    for filepath in res:
+        with open(filepath, "r") as f:
             song_file = fm.load(f)
-            model = build_model(song_file)
-            # models.append(model)
+            build_model(song_file)
+            
 
 
 @orm.db_session
@@ -76,6 +53,9 @@ def run_queries():
         for song in artist.songs:
             print(song.title)
             print(song.chords)
+
+db = orm.Database()
+db.bind(provider='sqlite', filename=':memory:' if __DEBUG else './api/db.sqlite', create_db=True)
 
 db.generate_mapping(create_tables=True)
 def main():
