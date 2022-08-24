@@ -26,4 +26,4 @@ class Song(db.Entity):
     original_url = orm.Required(str)
     capo_fret = orm.Optional(int)
 
-db.generate_mapping(create_tables=True)
+db.generate_mapping(create_tables=False)
