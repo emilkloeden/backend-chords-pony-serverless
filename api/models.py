@@ -4,7 +4,7 @@ from pony.orm import select, count
 __DEBUG = False
 
 db = orm.Database()
-db.bind(provider='sqlite', filename=':memory:' if __DEBUG else '../db.sqlite', create_db=True)
+db.bind(provider='sqlite', filename=':memory:' if __DEBUG else 'songs.sqlite', create_db=False)
 
 
 class Artist(db.Entity):

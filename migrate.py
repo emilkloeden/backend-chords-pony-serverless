@@ -55,7 +55,7 @@ def run_queries():
             print(song.chords)
 
 db = orm.Database()
-db.bind(provider='sqlite', filename=':memory:' if __DEBUG else './api/db.sqlite', create_db=True)
+db.bind(provider='sqlite', filename=':memory:' if __DEBUG else './api/songs.sqlite', create_db=True)
 
 db.generate_mapping(create_tables=True)
 def main():
