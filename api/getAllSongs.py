@@ -21,11 +21,16 @@ def get_all_songs():
 class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-        print("Do get called")
-        all_songs = get_all_songs()
-        self.send_response(200)
-        self.send_header('Content-type','application/json')
-        self.end_headers()
-        message = json.dumps(all_songs)
-        self.wfile.write(message.encode())
-        return
+        try:
+            all_songs = get_all_songs()
+            status_code = 200
+            message = json.dumps(all_songs)
+        except:
+            status_code = 404
+            message = json.dumps({"error": "Not found"})
+        finally:
+            self.send_response(status_code)
+            self.send_header('Content-type','application/json')
+            self.end_headers()
+            self.wfile.write(message.encode())
+            return

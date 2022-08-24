@@ -2,31 +2,30 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import json
 from typing import List
-from .models import Song, Artist
+from .models import Author, Song, Artist
 from pony.orm import db_session
-import pony 
 
 @db_session
-def get_songs(artist_name: str):
+def get_song(artist_name: str, song_title: str):
     artist = Artist.get(name=artist_name)
-    songs: pony.orm.core.SongSet = artist.songs.order_by(lambda s: s.title)
-    
-    return [
-        {
-            "artist": song.artist.name,
+    song: Song = Song.get(artist=artist, title=song_title)
+    author: Author = song.tab_author
+    return {
+            "content": song.chords,
+            "artist": artist.name,
             "title": song.title,
-            "path": f"/{song.artist.name}/{song.title}"
-        } 
-        for song 
-        in songs
-    ]
+            "tabAuthor": author.name,
+            "tabAuthorUrl": author.url,
+            "originalUrl": song.original_url,
+            "capoFret": song.capo_fret
+        }
 
 class handler(BaseHTTPRequestHandler):
-
     def do_GET(self):
         params = parse_qs(urlparse(self.path).query)
+        print(f"{params=}")
         try:
-            songs = get_songs(params["artist"][0])
+            songs = get_song(artist_name=params["artist"][0], song_title=params["title"][0])
             status_code = 200
             message = json.dumps(songs)
         except:
